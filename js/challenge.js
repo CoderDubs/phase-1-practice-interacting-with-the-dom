@@ -1,5 +1,9 @@
-//TODO clean up code and comments
-
+/*
+  This JavaScript code creates a dynamic counter that auto-increments every second. 
+  Users can manually adjust the counter, pause/resume it, "like" specific numbers, 
+  and submit comments. Event listeners handle button clicks, form submissions, and 
+  update the UI in real-time.
+*/
 
 document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('form').addEventListener('submit', (e1) => {
@@ -8,13 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
         handleSubmit(userInput);
     });
 });
-
-function handleSubmit(userInput) {
-    const commentSection = document.getElementById('list');
-    const newComment = document.createElement('p');
-    newComment.textContent = userInput;
-    commentSection.appendChild(newComment); 
-}
 
 let counter = 0;
 let intervalID;  // store interval
@@ -40,41 +37,20 @@ function startInterval() {
     }, 1000);
 }
 
-// Start the interval automatically when the page loads
 window.onload = function() {
     startInterval(); 
 };
 
-// Event listener for the pause/resume button
-pause.addEventListener("click", function() {
-    // If the button says 'Pause', we need to pause the timer
-    if (!isPaused) {
-        clearInterval(intervalID);  // Stop the interval
-        pause.textContent = 'resume'; 
-        isPaused = true; 
-        [plus, minus, heart].forEach(button => button.disabled = true);
-    } 
-    // If the button says 'Resume', restart the interval
-    else {
-        startInterval();  
-        pause.textContent = 'pause';  
-        isPaused = false;  
-        [plus, minus, heart].forEach(button => button.disabled = false);  
-    }
-});
-
 document.addEventListener("click", function(e) {
-    if (e.target === minus) {
+    if (e.target === minus && counter>0) {
         counter--;
     } else if(e.target === plus) {
         counter++;
     }
-    // Initial display update
     updateCounter();
 });
 
 heart.addEventListener("click", function() {
-    // Check if the current counter value has been liked before
     if (likes[counter]) {
         likes[counter]++;
     } else {
@@ -83,28 +59,38 @@ heart.addEventListener("click", function() {
     updateLikesDisplay(); 
 });
 
+pause.addEventListener("click", function() {
+    if (!isPaused) {
+        clearInterval(intervalID);  // Stop interval
+        pause.textContent = 'resume'; 
+        isPaused = true; 
+        [plus, minus, heart].forEach(button => button.disabled = true);
+    } else {
+        startInterval();  
+        pause.textContent = 'pause';  
+        isPaused = false;  
+        [plus, minus, heart].forEach(button => button.disabled = false);  
+    }
+});
+
 function updateLikesDisplay() {
     let likeList = document.getElementById('likes');
-
-    // If the likeList doesn't exist, create it as a <ul>
+    //↓maybe not needed other ways to handle this function???
     if (!likeList) {
         likeList = document.createElement('ul');
-        likeList.id = 'likes'; // Give it an ID for future access
-
-        // Locate the pause button
-        const pauseButton = document.getElementById('pause');
-
-        // Use insertAdjacentElement to insert the likeList after the pause button but before the comments
-        pauseButton.insertAdjacentElement('afterend', likeList); 
+        likeList.id = 'likes';
+        pause.insertAdjacentElement('afterend', likeList); 
     }
-
-    // Clear existing likes to avoid duplication
-    likeList.innerHTML = '';
-
     // Populate the like list with new items
-    for (const [n, likeCount] of Object.entries(likes)) {
+    for (const [aHeart, likeCount] of Object.entries(likes)) {
         const listItem = document.createElement('li');
-        listItem.textContent = `Number ${n} has been liked ${likeCount} times!`;
-        likeList.appendChild(listItem); // Add each liked number to the list
+        listItem.textContent = `Number ${aHeart} has been liked ${likeCount} times!`;
+        likeList.appendChild(listItem);
     }
+}
+function handleSubmit(userInput) {
+    const commentSection = document.getElementById('list');
+    const newComment = document.createElement('p');
+    newComment.textContent = userInput;
+    commentSection.appendChild(newComment); 
 }
